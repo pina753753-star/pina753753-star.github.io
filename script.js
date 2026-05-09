@@ -16,75 +16,119 @@ const fields = [
   "promptOutput"
 ];
 
-const form = document.getElementById("orderForm");
-const generateBtn = document.getElementById("generateBtn");
-const copyBtn = document.getElementById("copyBtn");
-const resetBtn = document.getElementById("resetBtn");
-const statusMessage = document.getElementById("statusMessage");
-const customMoodField = document.getElementById("customMoodField");
+function initializeOrderMaker() {
+  const form = document.getElementById("orderForm");
+  const generateBtn = document.getElementById("generateBtn");
+  const copyBtn = document.getElementById("copyBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const statusMessage = document.getElementById("statusMessage");
+  const promptOutput = document.getElementById("promptOutput");
+  const customMoodField = document.getElementById("customMoodField");
 
-const getElement = (id) => document.getElementById(id);
-const getValue = (id) => getElement(id).value.trim() || "未入力";
+  const getElement = (id) => document.getElementById(id);
+  const getValue = (id) => {
+    const element = getElement(id);
+    return element?.value?.trim() || "未入力";
+  };
 
-function saveForm() {
-  const data = {};
-  fields.forEach((id) => {
-    data[id] = getElement(id).value;
-  });
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
+  const setStatus = (message) => {
+    if (statusMessage) {
+      statusMessage.textContent = message;
+    }
+  };
 
-function loadForm() {
-  const savedData = localStorage.getItem(STORAGE_KEY);
-  if (!savedData) return;
+  const getSavedData = () => {
+    try {
+      return localStorage.getItem(STORAGE_KEY);
+    } catch (error) {
+      return null;
+    }
+  };
 
-  try {
-    const data = JSON.parse(savedData);
+  const setSavedData = (data) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+      setStatus("入力内容の一時保存ができませんでした");
+    }
+  };
+
+  const clearSavedData = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      setStatus("保存データの削除ができませんでした");
+    }
+  };
+
+  function saveForm() {
+    const data = {};
+
     fields.forEach((id) => {
-      if (typeof data[id] === "string") {
-        getElement(id).value = data[id];
+      const element = getElement(id);
+      if (element) {
+        data[id] = element.value;
       }
     });
-  } catch (error) {
-    localStorage.removeItem(STORAGE_KEY);
-  }
-}
 
-function updateCustomMoodVisibility() {
-  const isCustom = getElement("designMood").value === "自由入力";
-  customMoodField.classList.toggle("is-visible", isCustom);
-}
-
-function getDesignDirection() {
-  const selectedMood = getElement("designMood").value;
-  const customMood = getElement("customMood").value.trim();
-
-  if (selectedMood === "自由入力") {
-    return customMood || "自由入力（詳細未入力）";
+    setSavedData(data);
   }
 
-  return selectedMood || "未入力";
-}
+  function loadForm() {
+    const savedData = getSavedData();
+    if (!savedData) return;
 
-function getImageInstruction() {
-  const imageUse = getValue("imageUse");
-
-  if (imageUse === "使う") {
-    return "画像を使う。画像素材が未提供の場合は、配置場所が分かる仮の画像枠・代替テキストを用意し、差し替えやすいファイル名とコメントを入れる。";
+    try {
+      const data = JSON.parse(savedData);
+      fields.forEach((id) => {
+        const element = getElement(id);
+        if (element && typeof data[id] === "string") {
+          element.value = data[id];
+        }
+      });
+    } catch (error) {
+      clearSavedData();
+    }
   }
 
-  if (imageUse === "使わない") {
-    return "画像は使わず、余白・配色・文字組み・装飾だけで見やすく仕上げる。";
+  function updateCustomMoodVisibility() {
+    const designMood = getElement("designMood");
+    if (!designMood || !customMoodField) return;
+
+    const isCustom = designMood.value === "自由入力";
+    customMoodField.classList.toggle("is-visible", isCustom);
   }
 
-  return "画像利用は未定。画像なしでも成立する構成にし、後から画像を追加しやすい余白やセクション設計にする。";
-}
+  function getDesignDirection() {
+    const selectedMood = getValue("designMood");
+    const customMood = getValue("customMood");
 
-function buildPrompt() {
-  const deliveryType = getValue("deliveryType");
-  const ctaUrl = getValue("ctaUrl");
+    if (selectedMood === "自由入力") {
+      return customMood === "未入力" ? "自由入力（詳細未入力）" : customMood;
+    }
 
-  return `あなたはWeb制作に強いCodexです。以下の制作オーダーをもとに、初心者にも扱いやすい完成データを作ってください。
+    return selectedMood;
+  }
+
+  function getImageInstruction() {
+    const imageUse = getValue("imageUse");
+
+    if (imageUse === "使う") {
+      return "画像を使う。画像素材が未提供の場合は、配置場所が分かる仮の画像枠・代替テキストを用意し、差し替えやすいファイル名とコメントを入れる。";
+    }
+
+    if (imageUse === "使わない") {
+      return "画像は使わず、余白・配色・文字組み・装飾だけで見やすく仕上げる。";
+    }
+
+    return "画像利用は未定。画像なしでも成立する構成にし、後から画像を追加しやすい余白やセクション設計にする。";
+  }
+
+  function buildPrompt() {
+    const deliveryType = getValue("deliveryType");
+    const ctaUrl = getValue("ctaUrl");
+
+    return `あなたはWeb制作に強いCodexです。以下の制作オーダーをもとに、初心者にも扱いやすい完成データを作ってください。
 
 ## 依頼者
 ${getValue("clientName")}
@@ -155,48 +199,83 @@ ${deliveryType}
 - 変更内容を確認し、必要なテストまたは表示確認を行う。
 - git statusで差分を確認する。
 - 完成したら必ずコミットする。`;
-}
-
-function generatePrompt() {
-  getElement("promptOutput").value = buildPrompt();
-  statusMessage.textContent = "指示書を作りました";
-  saveForm();
-}
-
-async function copyPrompt() {
-  const output = getElement("promptOutput");
-
-  if (!output.value.trim()) {
-    generatePrompt();
   }
 
-  try {
-    await navigator.clipboard.writeText(output.value);
-  } catch (error) {
-    output.select();
-    document.execCommand("copy");
+  function generatePrompt() {
+    if (!promptOutput) {
+      setStatus("生成結果の表示欄が見つかりません");
+      return "";
+    }
+
+    promptOutput.value = buildPrompt();
+    setStatus("指示書を作りました");
+    saveForm();
+    return promptOutput.value;
   }
 
-  statusMessage.textContent = "コピーしました";
-}
+  async function copyPrompt() {
+    if (!promptOutput) {
+      setStatus("コピーする内容が見つかりません");
+      return;
+    }
 
-function resetForm() {
-  form.reset();
-  getElement("promptOutput").value = "";
-  localStorage.removeItem(STORAGE_KEY);
+    if (!promptOutput.value.trim()) {
+      generatePrompt();
+    }
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(promptOutput.value);
+      } else {
+        promptOutput.select();
+        document.execCommand("copy");
+      }
+      setStatus("コピーしました");
+    } catch (error) {
+      promptOutput.select();
+      const copied = document.execCommand?.("copy");
+      setStatus(copied ? "コピーしました" : "コピーできませんでした。手動で選択してコピーしてください");
+    }
+  }
+
+  function resetForm() {
+    if (form) {
+      form.reset();
+    }
+
+    if (promptOutput) {
+      promptOutput.value = "";
+    }
+
+    clearSavedData();
+    updateCustomMoodVisibility();
+    setStatus("リセットしました");
+  }
+
+  if (!form || !generateBtn || !copyBtn || !resetBtn || !statusMessage || !promptOutput) {
+    console.warn("必要なHTML要素の一部が見つかりません。存在する要素だけ初期化します。");
+  }
+
+  loadForm();
   updateCustomMoodVisibility();
-  statusMessage.textContent = "リセットしました";
+
+  fields.forEach((id) => {
+    const element = getElement(id);
+    if (!element) return;
+
+    element.addEventListener("input", saveForm);
+    element.addEventListener("change", saveForm);
+  });
+
+  const designMood = getElement("designMood");
+  designMood?.addEventListener("change", updateCustomMoodVisibility);
+  generateBtn?.addEventListener("click", generatePrompt);
+  copyBtn?.addEventListener("click", copyPrompt);
+  resetBtn?.addEventListener("click", resetForm);
 }
 
-loadForm();
-updateCustomMoodVisibility();
-
-fields.forEach((id) => {
-  getElement(id).addEventListener("input", saveForm);
-  getElement(id).addEventListener("change", saveForm);
-});
-
-getElement("designMood").addEventListener("change", updateCustomMoodVisibility);
-generateBtn.addEventListener("click", generatePrompt);
-copyBtn.addEventListener("click", copyPrompt);
-resetBtn.addEventListener("click", resetForm);
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initializeOrderMaker);
+} else {
+  initializeOrderMaker();
+}
