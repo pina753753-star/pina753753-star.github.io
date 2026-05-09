@@ -1,0 +1,51 @@
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  background: #f8f2e8;
+}
+
+.lp {
+  position: relative;
+  max-width: 430px;
+  margin: 0 auto;
+}
+
+.lp__image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.cta-link {
+  position: absolute;
+  display: block;
+  background: transparent;
+}
+
+.cta-link:focus-visible {
+  outline: 3px solid #1f6feb;
+  outline-offset: 2px;
+}
+
+.cta-link--top {
+  left: 6.25%;
+  top: 23.72%;
+  width: 32.5%;
+  height: 3.55%;
+}
+
+.cta-link--bottom {
+  left: 29.9%;
+  top: 94.55%;
+  width: 40.5%;
+  height: 3.65%;
+}
