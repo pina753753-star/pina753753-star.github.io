@@ -1,142 +1,32 @@
 <!doctype html>
 <html lang="ja">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>制作オーダー → Codex指示書メーカー</title>
-  <meta name="description" content="制作オーダーの内容を入力するだけで、Codexに貼れる制作指示プロンプトを作れるGitHub Pages対応ツールです。">
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <main class="app-shell">
-    <header class="hero-card">
-      <p class="eyebrow">GitHub Pagesでそのまま使える</p>
-      <h1>制作オーダー<br>→ Codex指示書メーカー</h1>
-      <p class="lead">お客さんから聞いた内容を入れるだけ。Codexに貼れる制作指示プロンプトを自動で作ります。</p>
-    </header>
-
-    <form class="order-form" id="orderForm" autocomplete="on">
-      <section class="card" aria-labelledby="order-heading">
-        <div class="section-title">
-          <span class="step-badge">1</span>
-          <h2 id="order-heading">制作オーダーを入力</h2>
-        </div>
-
-        <label class="field">
-          <span class="field-label">依頼者名</span>
-          <input type="text" id="clientName" name="clientName" placeholder="例：山田花子さん">
-        </label>
-
-        <label class="field">
-          <span class="field-label">作りたいもの</span>
-          <select id="productType" name="productType">
-            <option value="">選択してください</option>
-            <option>スマホLP</option>
-            <option>診断ツール</option>
-            <option>チェックリスト</option>
-            <option>投稿ネタメーカー</option>
-            <option>予約導線ページ</option>
-            <option>商品紹介ページ</option>
-            <option>その他</option>
-          </select>
-        </label>
-
-        <label class="field">
-          <span class="field-label">制作目的</span>
-          <textarea id="purpose" name="purpose" rows="3" placeholder="例：LINE登録へつなげたい、商品の魅力を伝えたい"></textarea>
-        </label>
-
-        <label class="field">
-          <span class="field-label">ターゲット</span>
-          <textarea id="target" name="target" rows="3" placeholder="例：30代女性、起業準備中、スマホ操作が中心"></textarea>
-        </label>
-
-        <label class="field">
-          <span class="field-label">デザインの雰囲気</span>
-          <select id="designMood" name="designMood">
-            <option value="">選択してください</option>
-            <option>シンプル</option>
-            <option>かわいい</option>
-            <option>絵本風</option>
-            <option>高級感</option>
-            <option>ビジネス風</option>
-            <option>ナチュラル</option>
-            <option>ポップ</option>
-            <option>自由入力</option>
-          </select>
-        </label>
-
-        <label class="field field-free" id="customMoodField">
-          <span class="field-label">自由入力の雰囲気</span>
-          <input type="text" id="customMood" name="customMood" placeholder="例：韓国カフェ風、淡い水彩風">
-        </label>
-
-        <label class="field">
-          <span class="field-label">入れたい文章・内容</span>
-          <textarea id="contentText" name="contentText" rows="5" placeholder="見出し、本文、メニュー、料金、注意事項などをそのまま貼ってください"></textarea>
-        </label>
-
-        <label class="field">
-          <span class="field-label">画像を使うか</span>
-          <select id="imageUse" name="imageUse">
-            <option value="">選択してください</option>
-            <option>使う</option>
-            <option>使わない</option>
-            <option>未定</option>
-          </select>
-        </label>
-
-        <label class="field">
-          <span class="field-label">CTAリンク先URL</span>
-          <input type="url" id="ctaUrl" name="ctaUrl" placeholder="https://example.com">
-        </label>
-
-        <label class="field">
-          <span class="field-label">絶対に守ってほしいこと</span>
-          <textarea id="mustDo" name="mustDo" rows="3" placeholder="例：スマホで見やすく、専門用語を使いすぎない"></textarea>
-        </label>
-
-        <label class="field">
-          <span class="field-label">やってほしくないこと</span>
-          <textarea id="avoidDo" name="avoidDo" rows="3" placeholder="例：派手すぎる色、長すぎる文章、画像の多用"></textarea>
-        </label>
-
-        <label class="field">
-          <span class="field-label">納品形式</span>
-          <select id="deliveryType" name="deliveryType">
-            <option value="">選択してください</option>
-            <option>GitHub Pages</option>
-            <option>HTMLファイル</option>
-            <option>画像LP</option>
-            <option>未定</option>
-          </select>
-        </label>
-      </section>
-
-      <section class="card result-card" aria-labelledby="result-heading">
-        <div class="section-title">
-          <span class="step-badge step-badge--blue">2</span>
-          <h2 id="result-heading">Codex指示書</h2>
-        </div>
-
-        <p class="hint">「指示書を作る」を押すと、下にCodex用プロンプトが表示されます。</p>
-
-        <label class="field">
-          <span class="field-label">生成されたプロンプト</span>
-          <textarea id="promptOutput" rows="14" readonly placeholder="ここに指示書が表示されます"></textarea>
-        </label>
-
-        <div class="button-group" aria-label="操作ボタン">
-          <button type="button" class="button button-primary" id="generateBtn">指示書を作る</button>
-          <button type="button" class="button button-secondary" id="copyBtn">コピーする</button>
-          <button type="button" class="button button-ghost" id="resetBtn">リセット</button>
-        </div>
-
-        <p class="status-message" id="statusMessage" role="status" aria-live="polite"></p>
-      </section>
-    </form>
-  </main>
-
-  <script src="script.js" defer></script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>スマホだけで、Codexをやさしく始める。</title>
+    <meta
+      name="description"
+      content="初心者向けにCodexの始め方をやさしく案内するスマホLPです。"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="lp" aria-label="スマホだけで、Codexをやさしく始める。">
+      <img
+        class="lp__image"
+        src="images/design-reference.jpeg"
+        alt="スマホだけで、Codexをやさしく始める初心者向けLP"
+      />
+      <a
+        class="cta-link cta-link--top"
+        href="https://note.com/pinapina53"
+        aria-label="Codex入門を見る"
+      ></a>
+      <a
+        class="cta-link cta-link--bottom"
+        href="https://note.com/pinapina53"
+        aria-label="Codex入門を見る"
+      ></a>
+    </main>
+  </body>
 </html>

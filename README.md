@@ -1,70 +1,29 @@
-# 制作オーダー → Codex指示書メーカー
+# GitHub Pages スマホLP
 
-お客さんから制作オーダーが入った時に、入力フォームへ内容を入れるだけで、Codexにそのまま貼れる制作指示プロンプトを生成できるツールです。
+完成版LP全体画像 1 枚を、そのままスマホ向けLPとして表示する構成です。
 
-GitHub Pagesに置くだけで動きます。ログイン、サーバー、外部ライブラリは不要です。
+## 画像の差し替え方法
 
-## ファイル構成
+1. 新しい完成版LP全体画像を用意します。
+2. ファイル名を `design-reference.jpeg` に変更します。
+3. `images/design-reference.jpeg` を新しい画像で上書きします。
+4. 画像サイズやCTA位置が変わる場合は、`style.css` の `.cta-link--top` と `.cta-link--bottom` の `left` / `top` / `width` / `height` を調整してください。
 
-```text
-index.html
-style.css
-script.js
-README.md
+## CTAリンクの変更方法
+
+`index.html` にある2か所のCTAリンクの `href` を変更します。
+
+```html
+<a class="cta-link cta-link--top" href="https://note.com/pinapina53" aria-label="Codex入門を見る"></a>
+<a class="cta-link cta-link--bottom" href="https://note.com/pinapina53" aria-label="Codex入門を見る"></a>
 ```
 
-## 使い方
+上のCTAと下のCTAは同じリンク先にしています。必要に応じて、それぞれ別のURLに変更できます。
 
-1. `index.html` をブラウザで開きます。
-2. 依頼者名、作りたいもの、制作目的、ターゲットなどを入力します。
-3. 「指示書を作る」を押します。
-4. 生成されたCodex用プロンプトを確認します。
-5. 「コピーする」を押して、Codexに貼り付けます。
-6. 入力をやり直したい時は「リセット」を押します。
+## 実装メモ
 
-入力内容と生成されたプロンプトはブラウザの `localStorage` に自動保存されるため、ページを閉じても途中の内容が残ります。
-
-## GitHub Pagesで公開する方法
-
-1. このリポジトリをGitHubにプッシュします。
-2. GitHubのリポジトリ画面で `Settings` を開きます。
-3. `Pages` を開きます。
-4. `Build and deployment` の `Source` を `Deploy from a branch` にします。
-5. 公開したいブランチを選び、フォルダは `/ (root)` を選択します。
-6. `Save` を押します。
-7. 表示されたURLにアクセスするとツールを使えます。
-
-## 入力できる項目
-
-- 依頼者名
-- 作りたいもの
-- 制作目的
-- ターゲット
-- デザインの雰囲気
-- 入れたい文章・内容
-- 画像を使うか
-- CTAリンク先URL
-- 絶対に守ってほしいこと
-- やってほしくないこと
-- 納品形式
-
-## 生成されるプロンプトに含まれる内容
-
-- 制作物の種類
-- 目的
-- ターゲット
-- デザイン方針
-- 必要なファイル構成
-- 画像を使う場合の扱い
-- CTAリンク
-- 絶対に守ること
-- やってはいけないこと
-- スマホ表示の確認
-- 最後にコミットする指示
-- 完成後の確認チェックリスト
-
-## カスタマイズ
-
-- 色や余白は `style.css` で変更できます。
-- フォーム項目や生成文は `index.html` と `script.js` で変更できます。
-- 外部ライブラリを使っていないため、そのままGitHub Pagesで公開できます。
+- LP本体は `images/design-reference.jpeg` 1枚だけを表示しています。
+- CTA以外のリンクは設置していません。
+- 画像は `width: 100%; height: auto; display: block;` で表示しています。
+- LP全体は `max-width: 430px; margin: 0 auto;` で中央配置しています。
+- `object-fit: cover`、固定height、画像を見切る `overflow: hidden` は使っていません。
